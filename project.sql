@@ -2,12 +2,26 @@ create database project;
 
 use project;
 
+-- Accounts table
+CREATE TABLE Accounts (
+    username VARCHAR(255) PRIMARY KEY,
+    password VARCHAR(255) NOT NULL
+);
+
+SELECT * FROM Accounts;
+
 -- Customer table
 CREATE TABLE Customer (
     CustomerID INT PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
-    BillingAddress VARCHAR(255) NOT NULL
+    Username VARCHAR(255) UNIQUE,
+    FOREIGN KEY (Username) REFERENCES Accounts(username),
+    BillingAddress VARCHAR(255)
 );
+
+DELETE FROM Customer;
+
+DROP TABLE Customer;
 
 select * from Customer;
 
