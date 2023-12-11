@@ -145,7 +145,62 @@ def register():
         mysqlx.commit()
         cursor.close()
 
-        return jsonify({'message': 'Registration successful'}), 201
+        cursor = mysqlx.cursor()
+        cursor.execute("INSERT INTO Customer (Name, username, BillingAddress) VALUES (%s, %s, %s)", (name, username, address))
+        mysqlx.commit()
+        cursor.close()
+
+        cursor = mysqlx.cursor()
+        cursor.execute("SELECT CustomerID FROM Customer WHERE username = %s", (username,))
+        customer_id = cursor.fetchone()[0]
+        cursor.close()
+
+        return jsonify({'message': 'Registration successful', 'customer_id': customer_id}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/signin', methods=['POST'])
+def signin():
+    try:
+        data = request.json
+        username = data['username']
+        password = data['password']
+
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Accounts WHERE username = %s AND password = %s", (username, password))
+        user = cursor.fetchone()
+        cursor.close()
+
+        cursor = mysqlx.cursor()
+        cursor.execute("SELECT CustomerID FROM Customer WHERE username = %s", (username,))
+        customer_id = cursor.fetchone()[0]
+        cursor.close()
+
+        if user:
+            # Authentication successful
+            return jsonify({'message': 'Registration successful', 'customer_id': customer_id}), 200
+        else:
+            # Authentication failed
+            return jsonify({'message': 'Authentication failed. Invalid username or password'}), 401
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+# API endpoint for the /dashboard route
+@app.route('/dashboard/<customer_id>', methods=['GET'])
+def dashboard(customer_id):
+    try:
+        # Fetch customer details from the database based on customer_id
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Customer WHERE CustomerID = %s", (customer_id,))
+        customer_data = cursor.fetchone()
+        cursor.close()
+
+        if customer_data:
+            return jsonify(customer_data)
+        else:
+            return jsonify({'error': 'Customer not found'}), 404
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

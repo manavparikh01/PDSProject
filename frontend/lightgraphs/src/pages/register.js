@@ -1,6 +1,7 @@
 // RegisterPage.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCustomerContext } from '../customerContext';
 import './RegisterPage.css';
 
 const RegisterPage = () => {
@@ -8,6 +9,10 @@ const RegisterPage = () => {
   const [username, setUsername] = useState('');
   const [address, setAddress] = useState('');
   const [password, setPassword] = useState('');
+  const [customer_id, setCustomer_id] = useState('');
+  const { setCustomer } = useCustomerContext();
+  // const history = useHistory();
+  let history = useNavigate();
 
 
   const handleRegister = async (e) => {
@@ -27,7 +32,12 @@ const RegisterPage = () => {
         });
   
         if (response.ok) {
+          const responseData = await response.json();
           console.log('Registration successful');
+          console.log(responseData.customer_id)
+          setCustomer_id(responseData.customer_id);
+          setCustomer(responseData.customer_id);
+          history('/dashboard');
           // Handle successful registration, e.g., redirect to login page
         } else {
           const errorData = await response.json();

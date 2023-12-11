@@ -1,17 +1,52 @@
 // SignInPage.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCustomerContext } from '../customerContext';
 import './SignInPage.css';
 
 const SignInPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [customer_id, setCustomer_id] = useState('');
+  const { setCustomer } = useCustomerContext();
+  let history = useNavigate();
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     console.log('Username:', username);
     console.log('Password:', password);
+
     // Add your authentication logic here
+    try {
+      const response = await fetch('http://127.0.0.1:5000/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Registration successful');
+        console.log(responseData.customer_id)
+        console.log(customer_id)
+        setCustomer_id(responseData.customer_id);
+        console.log(customer_id)
+        setCustomer(responseData.customer_id);
+        console.log('hello');
+        
+        history('/dashboard');
+        // Handle successful authentication, e.g., redirect to the dashboard
+      } else {
+        const responseData = await response.json();
+        console.error(`Authentication failed: ${responseData.message}`);
+        // Handle authentication failure, e.g., display an error message to the user
+      }
+    } catch (error) {
+      console.error('Error during authentication:', error);
+      // Handle other errors, e.g., network issues
+    }
   };
 
   return (

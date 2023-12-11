@@ -10,6 +10,12 @@ CREATE TABLE Accounts (
 
 SELECT * FROM Accounts;
 
+DROP TABLE Accounts;
+
+DELETE FROM Accounts;
+
+DELETE FROM Accounts WHERE username = 'manavparikh2003@gmail.com';
+
 -- Customer table
 CREATE TABLE Customer (
     CustomerID INT PRIMARY KEY,
@@ -19,7 +25,18 @@ CREATE TABLE Customer (
     BillingAddress VARCHAR(255)
 );
 
+CREATE TABLE Customer (
+    CustomerID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Username VARCHAR(255) UNIQUE,
+    FOREIGN KEY (Username) REFERENCES Accounts(username),
+    BillingAddress VARCHAR(255)
+);
+
+
 DELETE FROM Customer;
+
+DELETE FROM Customer WHERE username = 'manavparikh2003@gmail.com';
 
 DROP TABLE Customer;
 
