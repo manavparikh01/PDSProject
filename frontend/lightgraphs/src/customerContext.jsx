@@ -23,8 +23,12 @@ export const CustomerProvider = ({ children }) => {
     setCustomerID(id);
   };
 
+  const clearCustomer = () => {
+    setCustomerID(null);
+  };
+
   return (
-    <CustomerContext.Provider value={{ customerID, setCustomer }}>
+    <CustomerContext.Provider value={{ customerID, setCustomer, clearCustomer }}>
       {children}
     </CustomerContext.Provider>
   );

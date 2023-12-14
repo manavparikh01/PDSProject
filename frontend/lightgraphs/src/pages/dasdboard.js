@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useCustomerContext } from '../customerContext';
+import { Link, useNavigate } from 'react-router-dom';
+import './style.css';
 
 const Dashboard = () => {
-  const { customerID } = useCustomerContext();
+  const { customerID, clearCustomer } = useCustomerContext();
   const [customerData, setCustomerData] = useState();
-  const [name, setName] = useState('');
+  let history = useNavigate();
 
   const fetchCustomerData = async (customerID) => {
     try {
@@ -39,12 +41,35 @@ const Dashboard = () => {
 //     console.log('inside effect', customerData);
 //   }, [customerData])
 
+const handleSignOut = () => {
+  // Clear customer data and redirect to the home page
+  clearCustomer();
+  history('/');
+};
+
 
 
   return (
     <div>
+      
+      <div className="sidebar">
       <h2>Dashboard</h2>
-      {customerData ? (
+        <ul>
+          <li><Link to="/dashboard">Home</Link></li>
+          <li><Link to="/locations">Locations</Link></li>
+          <li><Link to="/settings">Settings</Link></li>
+        </ul>
+        <div className="sign-out">
+          <button onClick={handleSignOut}>Sign Out</button>
+        </div>
+      </div>
+      <div className="conedison">
+        <img src="conedison.png" alt="Con Edison Logo" height="60px" width="280px" />
+      </div>
+      <div className="content">
+        <h1>Welcome to Con Edison</h1>
+        <p>Your one-stop destination for Smart Home Energy Management.</p>
+        {customerData ? (
         <>
           <p>Customer ID: {customerData.CustomerID}</p>
           <p>Name: {customerData.Name}</p>
@@ -55,6 +80,7 @@ const Dashboard = () => {
       ) : (
         <p>Loading...</p>
       )}
+      </div>
     </div>
   );
 };

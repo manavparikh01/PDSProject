@@ -1,0 +1,122 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.conedison{
+    margin-left: 200px;
+}
+
+/* Existing styles ... */
+
+.sidebar {
+    height: 100vh;
+    width: 200px;
+    position: fixed;
+    background-color: #1886e7;
+    padding-top: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar h2 {
+    color: white;
+    text-align: center;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    flex-grow: 1; /* Allow the list to grow to fill the available space */
+}
+
+.sidebar ul li a {
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+}
+
+.sidebar ul li a:hover {
+    background-color: #575757;
+}
+
+.sign-out {
+    margin-top: auto; /* Push the sign-out button to the bottom */
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.sign-out button {
+    background-color: #ff4f4f;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.sign-out button:hover {
+    background-color: #d14141;
+}
+
+/* Existing styles ... */
+
+
+.content {
+    margin-left: 200px;
+    padding: 20px;
+}
+
+/* Add this to your existing style.css file or create a new one */
+
+.location-boxes {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .location-box {
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+  
+    /* Adjust the width and height based on your design */
+    width: 150px;
+    height: 100px;
+  }
+  
+  .location-box:hover {
+    background-color: #2980b9;
+  }
+
+  .device-boxes {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .device-box {
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+  
+    /* Adjust the width and height based on your design */
+    width: 150px;
+    height: 100px;
+  }
+  
+  .device-box:hover {
+    background-color: #2980b9;
+  }
+  

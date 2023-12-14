@@ -204,6 +204,90 @@ def dashboard(customer_id):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+# API endpoint for the /newlocation route    
+@app.route('/newlocation', methods=['POST'])
+def save_location():
+    try:
+        data = request.get_json()
+        customer_id = data['customerID']
+        address = data['address']
+        zipcode = data['zipcode']
+        unit = data['unit']
+        takedate = data['takedate']
+        sq = data['sq']
+        beds = data['beds']
+        occupants = data['occupants']
+        # Extract other fields as needed
+
+        # Perform MySQL database insertion
+        # (Assuming you have a MySQL connection named 'db')
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("""
+        INSERT INTO ServiceLocation (CustomerID, Address, ZipCode, UnitNumber, TakeoverDate, SquareFootage, Bedrooms, Occupants)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """, (customer_id, address, zipcode, unit, takedate, sq, beds, occupants))
+        mysqlx.commit()
+        cursor.close()
+
+        return jsonify({'message': 'Location saved successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/locations/<customer_id>', methods=['GET'])
+def locations(customer_id):
+    try:
+        print(customer_id)
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("""
+        SELECT * FROM ServiceLocation
+        WHERE CustomerID = %s
+        """, (customer_id,))
+        locations = cursor.fetchall()
+        mysqlx.commit()
+        cursor.close()
+
+        return jsonify({'locations': locations}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/devices/<customer_id>/<location_id>', methods=['GET'])
+def devices(customer_id, location_id):
+    try:
+        print(customer_id, location_id)
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("""
+        SELECT * FROM Device
+        WHERE LocationID = %s
+        """, (location_id, ))
+        devices = cursor.fetchall()
+        mysqlx.commit()
+        cursor.close()
+
+        print(devices)
+        return jsonify({'devices': devices}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/add_device/<location_id>', methods=['POST'])
+def add_device(location_id):
+    try:
+        
+        cursor = mysqlx.cursor(dictionary=True)
+        device_data = request.get_json()
+
+        cursor.execute("""
+            INSERT INTO Device (LocationID, Type, ModelNumber)
+            VALUES (%s, %s, %s)
+        """, (location_id, device_data['type'], device_data['model']))
+        mysqlx.commit()
+        cursor.close()
+        mysqlx.close()
+
+        return jsonify({'message': 'Device added successfully'}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
