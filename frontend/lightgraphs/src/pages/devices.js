@@ -27,7 +27,7 @@ const Devices = () => {
 
   useEffect(() => {
     fetchDevices(customerID, locationID);
-  }, [customerID]);
+  }, [customerID, locationID]);
 
   return (
     <div>
@@ -44,24 +44,32 @@ const Devices = () => {
         <p>Your one-stop destination for a Smart Home Energy Management.</p>
       </div>
       <div className="content">
+      <p>To view total energy used monthly</p>
+        <Link to={`/location/monthly/${locationID}`}>
+        <button>View Chart</button>
+      </Link>
+      <p>To view total energy used daily</p>
+        <Link to={`/location/daily/${locationID}`}>
+        <button>View Chart</button>
+      </Link>
         <h1>Devices</h1>
         <p>Current Devices are as follows:</p>
         {devices.length > 0 ? (
           <div className="device-boxes">
             {devices.map((device) => (
-              
+              <Link to={`/location/${device.LocationID}/${device.DeviceID}`} key={device.DeviceID}>
                 <div className="device-box">{device.Type}
                 <p>{device.ModelNumber}</p>
                   <p>{device.DeviceID}</p>
 
                 </div>
-              
+                </Link>
             ))}
           </div>
         ) : (
           <p>No devices added.</p>
         )}
-        <button onClick={() => window.location.href = 'charts.html'}>View Charts</button>
+        
         <p>To add new Devices click here:</p>
         <Link to={`/newdevice/${locationID}`}>
           <button>Add Device</button>

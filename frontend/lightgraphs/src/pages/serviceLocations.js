@@ -47,6 +47,10 @@ const Locations = () => {
       </div>
       <div className="content">
         <h1>Locations</h1>
+        <p>To view energy cost per location</p>
+        <Link to={`/locations/energycost`}>
+        <button>View Chart</button>
+      </Link>
         <p>Current Locations are as follows:</p>
         {locations.length > 0 ? (
           <div className="location-boxes">
@@ -62,7 +66,8 @@ const Locations = () => {
         ) : (
           <p>No locations added.</p>
         )}
-        <button onClick={() => window.location.href = 'charts.html'}>View Charts</button>
+        
+       
         <p>To add new Locations click here:</p>
       <Link to="/newlocation">
         <button>Add Location</button>

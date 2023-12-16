@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCustomerContext } from '../customerContext';
+import { SqlValidationProvider, useSqlValidation } from '../validateContext';
+
+import MyDialogBox from '../message';
 import './SignInPage.css';
 
 const SignInPage = () => {
@@ -9,12 +12,30 @@ const SignInPage = () => {
   const [password, setPassword] = useState('');
   const [customer_id, setCustomer_id] = useState('');
   const { setCustomer } = useCustomerContext();
+  const { validateInput } = useSqlValidation();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   let history = useNavigate();
+
+  const openDialog = () => {
+    setIsDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+  };
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     console.log('Username:', username);
     console.log('Password:', password);
+
+    const isUsernameValid = validateInput(username);
+    const isPasswordValid = validateInput(password);
+
+    if (!isUsernameValid || !isPasswordValid) {
+      openDialog();
+      return;
+    }
 
     // Add your authentication logic here
     try {
@@ -80,6 +101,11 @@ const SignInPage = () => {
           New user? <Link to="/register">Register here</Link>
         </p>
       </div>
+      <MyDialogBox
+        isOpen={isDialogOpen}
+        onClose={closeDialog}
+        message="Invalid username or password."
+      />
     </div>
   );
 };

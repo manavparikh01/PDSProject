@@ -129,6 +129,165 @@ def get_all_accounts():
 #     except Exception as e:
 #         return jsonify({'error': str(e)}), 500
 
+@app.route('/locations', methods=['GET'])
+def get_all_locations():
+    try:
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM ServiceLocation")
+        locations = cursor.fetchall()
+        cursor.close()
+
+        return jsonify({'locations': locations}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/eventdatas', methods=['GET'])
+def get_all_eventdatas():
+    try:
+
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM EventData")
+        eventdata = cursor.fetchall()
+        cursor.close()
+
+        return jsonify({'eventdata': eventdata}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/eventdata/<device_id>', methods=['GET'])
+def get_all_eventdata(device_id):
+    try:
+
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM EventData WHERE EventType = 'energy use' AND DeviceID = %s", (device_id, ))
+        eventdata = cursor.fetchall()
+        cursor.close()
+
+        return jsonify({'eventdata': eventdata}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/eventdata/monthly/<location_id>', methods=['GET'])
+def get_all_eventdata_location_monthly(location_id):
+    try:
+
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT 
+                d.LocationID,
+                MONTH(ed.Timestamp) AS Month,
+                YEAR(ed.Timestamp) AS Year,
+                SUM(CASE WHEN ed.EventType = 'energy use' THEN CAST(ed.Value AS DECIMAL(10,2)) ELSE 0 END) AS TotalEnergyUsage
+            FROM 
+                EventData ed
+            JOIN 
+                Device d ON ed.DeviceID = d.DeviceID
+            WHERE 
+                d.LocationID = %s
+                AND ed.Timestamp BETWEEN '2022-08-01 00:00:00' AND '2022-09-30 23:59:59'
+                AND ed.EventType = 'energy use'
+            GROUP BY 
+                d.LocationID, MONTH(ed.Timestamp), YEAR(ed.Timestamp)
+        """, (location_id,))
+        eventdatalocation_monthly = cursor.fetchall()
+        cursor.close()
+
+        return jsonify({'eventdata': eventdatalocation_monthly}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/eventdata/daily/<location_id>', methods=['GET'])
+def get_all_eventdata_location_daily(location_id):
+    try:
+
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT 
+    DATE(ed.Timestamp) AS Date,
+    sl.LocationID,
+    SUM(CASE WHEN ed.EventType = 'energy use' THEN CAST(ed.Value AS DECIMAL(10,2)) ELSE 0 END) AS DailyEnergyUsage
+FROM 
+    ServiceLocation sl
+JOIN 
+    Device d ON sl.LocationID = d.LocationID
+JOIN 
+    EventData ed ON d.DeviceID = ed.DeviceID
+WHERE 
+    sl.LocationID = %s AND
+    ed.Timestamp BETWEEN '2022-08-01 00:00:00' AND '2022-09-30 23:59:59' AND
+    ed.EventType = 'energy use'
+GROUP BY 
+    DATE(ed.Timestamp), sl.LocationID
+ORDER BY 
+    Date
+        """, (location_id,))
+        eventdatalocation_daily = cursor.fetchall()
+        cursor.close()
+
+        return jsonify({'eventdata': eventdatalocation_daily}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/eventdata/location_wise/<customer_id>', methods=['GET'])
+def get_all_eventdata_location_wise(customer_id):
+    try:
+
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("""
+    SELECT
+    c.CustomerID,
+    c.Name,
+    sl.LocationID,
+    sl.Address,
+    SUM(CASE WHEN ed.EventType = 'energy use' THEN
+    CAST(ed.Value AS DECIMAL(10,2)) * ep.PricePerKWh ELSE 0
+    END) AS TotalEnergyCost
+FROM
+    Customer c
+JOIN
+    ServiceLocation sl ON c.CustomerID = sl.CustomerID
+JOIN
+    Device d ON sl.LocationID = d.LocationID
+JOIN
+    EventData ed ON d.DeviceID = ed.DeviceID
+LEFT OUTER JOIN
+    EnergyPrice ep ON sl.ZipCode = ep.ZipCode
+    AND
+    ep.Time = (
+    SELECT
+        MAX(Time)
+    FROM
+        EnergyPrice
+    WHERE
+        ZipCode = sl.ZipCode
+        AND
+        Time <= TIME(ed.Timestamp)
+    )
+WHERE
+    ed.Timestamp BETWEEN '2022-08-01 00:00:00' AND '2022-08-31 23:59:59'
+    AND
+    ed.EventType = 'energy use'
+    AND
+    c.CustomerID = %s
+GROUP BY
+    c.CustomerID,
+    c.Name,
+    sl.LocationID,
+    sl.Address;
+                       """, (customer_id,))
+        eventdatalocation_wise = cursor.fetchall()
+        cursor.close()
+
+        return jsonify({'eventdata': eventdatalocation_wise}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500    
+
 @app.route('/register', methods=['POST'])
 def register():
     try:

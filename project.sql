@@ -61,6 +61,21 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE ServiceLocation;
 
+CREATE TABLE ServiceLocation (
+    LocationID INT AUTO_INCREMENT PRIMARY KEY,
+    CustomerID INT,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    Address VARCHAR(255) NOT NULL,
+    ZipCode VARCHAR(10) NOT NULL,
+    UnitNumber VARCHAR(50),
+    TakeoverDate DATE,
+    SquareFootage DECIMAL(10, 2),
+    Bedrooms INT,
+    Occupants INT,
+    UNIQUE (CustomerID, Address)
+);
+
+
 select * from Customer;
 
 select * from ServiceLocation;
@@ -77,7 +92,18 @@ CREATE TABLE Device (
 
 select * from Device;
 
+DROP TABLE Device;
 
+CREATE TABLE Device (
+    DeviceID INT AUTO_INCREMENT PRIMARY KEY,
+    LocationID INT,
+    FOREIGN KEY (LocationID) REFERENCES ServiceLocation(LocationID),
+    Type VARCHAR(50) NOT NULL,
+    ModelNumber VARCHAR(50) NOT NULL
+);
+
+SELECT * FROM Device
+        WHERE LocationID = "1";
 
 -- EventData table
 CREATE TABLE EventData (
