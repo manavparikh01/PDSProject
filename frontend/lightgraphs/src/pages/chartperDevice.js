@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import Chart from 'react-apexcharts';
 
 const EnergyGraph = () => {
   const [energyData, setEnergyData] = useState(null);
-  const { deviceID } = useParams();
+  const { locationID, deviceID } = useParams();
+  const history = useNavigate();
 
   useEffect(() => {
     const fetchData = async (deviceID) => {
@@ -19,6 +20,23 @@ const EnergyGraph = () => {
 
     fetchData(deviceID);
   }, [deviceID]);
+
+  const handleDeleteDevice = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/delete_device/${deviceID}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        console.log('Device deleted successfully!');
+        history(`/location/${locationID}`);
+      } else {
+        console.error('Failed to delete device.');
+      }
+    } catch (error) {
+      console.error('Error deleting device:', error);
+    }
+  };
 
   if (!energyData) {
     return <div>Loading...</div>;
@@ -61,13 +79,27 @@ const EnergyGraph = () => {
     },
   };
 
+  const uniqueMonths = [...new Set(energyData.map((event) => new Date(event.Timestamp).toLocaleDateString()))];
+
+
   return (
     <div>
       <h1>Energy Usage Graph</h1>
+      <p>Data for the following days:</p>
+      <ul>
+        {uniqueMonths.map((month) => (
+          <li key={month}>{month}</li>
+        ))}
+      </ul>
       <Chart options={chartOptions} series={chartSeries} type="line" height={350} />
+      <Link to={`/location/${locationID}`}>
+      <button>Go Back</button>
+      </Link>
+      <button onClick={handleDeleteDevice}>Delete Device</button>
     </div>
   );
 };
 
 export default EnergyGraph;
 
+  

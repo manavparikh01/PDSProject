@@ -4,7 +4,7 @@ import { useCustomerContext } from '../customerContext';
 import './style.css';
 
 const LocationForm = () => {
-    const { customerID } = useCustomerContext();
+    const { customerID, clearCustomer } = useCustomerContext();
     let history = useNavigate();
 
   const [locationData, setLocationData] = useState({
@@ -48,6 +48,12 @@ const LocationForm = () => {
     }));
   };
 
+  const handleSignOut = () => {
+    // Clear customer data and redirect to the home page
+    clearCustomer();
+    history('/');
+  };
+
   return (
     <div>
       <div className="sidebar">
@@ -57,9 +63,12 @@ const LocationForm = () => {
           <li><Link to="/locations">Locations</Link></li>
           <li><Link to="/settings">Settings</Link></li>
         </ul>
+        <div className="sign-out">
+          <button onClick={handleSignOut}>Sign Out</button>
+        </div>
       </div>
       <div className="conedison">
-        <img src="conedison.png" alt="Con Edison Logo" height="60px" width="280px" />
+        <img src="/Users/manavparikh/Desktop/Fall23/Database/Project/frontend/lightgraphs/src/pages/conedison.png" alt="Con Edison" height="60px" width="280px" />
         <p>Your one-stop destination for a Smart Home Energy Management.</p>
       </div>
       <div className="content">

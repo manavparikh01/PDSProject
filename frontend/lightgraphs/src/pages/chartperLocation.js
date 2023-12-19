@@ -52,6 +52,9 @@ const EnergyCostChart = () => {
     <div>
       <h1>Total Energy Cost Per Location (August 2022)</h1>
       <Chart options={chartOptions} series={chartData.series} type="bar" height={350} />
+      <Link to={`/locations`}>
+      <button>Go Back</button>
+      </Link>
     </div>
   );
 };

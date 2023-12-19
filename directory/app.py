@@ -401,12 +401,73 @@ def locations(customer_id):
         cursor.execute("""
         SELECT * FROM ServiceLocation
         WHERE CustomerID = %s
+        AND Status = 'ACTIVE'
         """, (customer_id,))
         locations = cursor.fetchall()
         mysqlx.commit()
         cursor.close()
 
         return jsonify({'locations': locations}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/location/<location_id>', methods=['DELETE'])
+def delete_location(location_id):
+    try:
+        print(location_id)
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("""
+        UPDATE Device
+        SET Status = 'Not Active'
+        WHERE LocationID = %s
+        """, (location_id,))
+        mysqlx.commit()
+        cursor.close()
+
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("""
+        UPDATE ServiceLocation
+        SET Status = 'Not Active'
+        WHERE LocationID = %s
+        """, (location_id,))
+        mysqlx.commit()
+        cursor.close()
+
+        return jsonify({'message': 'Location deleted'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+# @app.route('/location/<location_id>', methods=['GET'])
+# def get_location_data(location_id):
+#     try:
+#         print(location_id)
+#         cursor = mysqlx.cursor(dictionary=True)
+#         cursor.execute("""
+#         SELECT * FROM ServiceLocation
+#         WHERE LocationID = %s
+#         """, (location_id,))
+#         location = cursor.fetchone()
+#         mysqlx.commit()
+#         cursor.close()
+#         return jsonify({'message': location}), 200
+        
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+    
+@app.route('/delete_device/<device_id>', methods=['DELETE'])
+def delete_device(device_id):
+    try:
+        print(device_id)
+        cursor = mysqlx.cursor(dictionary=True)
+        cursor.execute("""
+        UPDATE Device
+        SET Status = 'Not Active'
+        WHERE DeviceID = %s
+        """, (device_id,))
+        mysqlx.commit()
+        cursor.close()
+
+        return jsonify({'message': 'Device deleted'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     

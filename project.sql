@@ -280,6 +280,20 @@ VALUES
     (15, '56789', '12:00:00', 0.1170),
     (16, '56789', '18:00:00', 0.1195);
     
+INSERT INTO EnergyPrice (PriceID, ZipCode, Time, PricePerKWh)
+VALUES 
+    (17, '11220', '00:00:00', 0.1185),
+    (18, '11220', '06:00:00', 0.1205),
+    (19, '11220', '12:00:00', 0.1170),
+    (20, '11220', '18:00:00', 0.1195);
+    
+INSERT INTO EnergyPrice (PriceID, ZipCode, Time, PricePerKWh)
+VALUES 
+    (21, '11221', '00:00:00', 0.1185),
+    (22, '11221', '06:00:00', 0.1205),
+    (23, '11221', '12:00:00', 0.1170),
+    (24, '11221', '18:00:00', 0.1195);
+    
 select * from EnergyPrice;
 
 delete from EnergyPrice;
@@ -1101,7 +1115,125 @@ VALUES
     (608, 28, '2023-12-01 20:00:00', 'switched off', NULL);
 
 
+SELECT * FROM EventData;
 -- 1
+
+SELECT * FROM EventData WHERE DeviceID = 1 AND EventType = 'energy use';
+
+SELECT 
+    DATE(ed.Timestamp) AS Date,
+    sl.LocationID,
+    SUM(CASE WHEN ed.EventType = 'energy use' THEN CAST(ed.Value AS DECIMAL(10,2)) ELSE 0 END) AS DailyEnergyUsage
+FROM 
+    ServiceLocation sl
+JOIN 
+    Device d ON sl.LocationID = d.LocationID
+JOIN 
+    EventData ed ON d.DeviceID = ed.DeviceID
+WHERE 
+    sl.LocationID = 1 AND
+    ed.Timestamp BETWEEN '2022-08-01 00:00:00' AND '2022-09-30 23:59:59' AND
+    ed.EventType = 'energy use'
+GROUP BY 
+    DATE(ed.Timestamp), sl.LocationID
+ORDER BY 
+    Date;
+    
+SELECT 
+    d.LocationID,
+    MONTH(ed.Timestamp) AS Month,
+    YEAR(ed.Timestamp) AS Year,
+    SUM(CASE WHEN ed.EventType = 'energy use' THEN CAST(ed.Value AS DECIMAL(10,2)) ELSE 0 END) AS TotalEnergyUsage
+FROM 
+    EventData ed
+JOIN 
+    Device d ON ed.DeviceID = d.DeviceID
+WHERE 
+    ed.Timestamp BETWEEN '2022-08-01 00:00:00' AND '2022-09-30 23:59:59'
+    AND ed.EventType = 'energy use'
+GROUP BY 
+    d.LocationID, MONTH(ed.Timestamp), YEAR(ed.Timestamp);
+
+SELECT
+sl.LocationID,
+sl.Address,
+SUM(CASE WHEN ed.EventType = 'energy use' THEN
+CAST(ed.Value AS DECIMAL(10,2)) * ep.PricePerKWh ELSE 0
+END) AS TotalEnergyCost
+FROM
+ServiceLocation sl
+JOIN
+Device d ON sl.LocationID = d.LocationID
+JOIN
+EventData ed ON d.DeviceID = ed.DeviceID
+LEFT OUTER JOIN
+EnergyPrice ep ON sl.ZipCode = ep.ZipCode
+AND
+ep.Time = (
+SELECT
+MAX(Time)
+FROM
+EnergyPrice
+WHERE
+ZipCode = sl.ZipCode
+AND
+Time <= TIME(ed.Timestamp)
+)
+WHERE
+ed.Timestamp BETWEEN '2022-08-01 00:00:00' AND '2022-08-31 23:59:59'
+AND
+ed.EventType = 'energy use'
+GROUP BY
+sl.LocationID,
+sl.Address;
+
+
+SELECT
+    c.CustomerID,
+    c.Name,
+    sl.LocationID,
+    sl.Address,
+    SUM(CASE WHEN ed.EventType = 'energy use' THEN
+    CAST(ed.Value AS DECIMAL(10,2)) * ep.PricePerKWh ELSE 0
+    END) AS TotalEnergyCost
+FROM
+    Customer c
+JOIN
+    ServiceLocation sl ON c.CustomerID = sl.CustomerID
+JOIN
+    Device d ON sl.LocationID = d.LocationID
+JOIN
+    EventData ed ON d.DeviceID = ed.DeviceID
+LEFT OUTER JOIN
+    EnergyPrice ep ON sl.ZipCode = ep.ZipCode
+    AND
+    ep.Time = (
+    SELECT
+        MAX(Time)
+    FROM
+        EnergyPrice
+    WHERE
+        ZipCode = sl.ZipCode
+        AND
+        Time <= TIME(ed.Timestamp)
+    )
+WHERE
+    ed.Timestamp BETWEEN '2022-08-01 00:00:00' AND '2022-08-31 23:59:59'
+    AND
+    ed.EventType = 'energy use'
+    AND
+    c.CustomerID = 4
+GROUP BY
+    c.CustomerID,
+    c.Name,
+    sl.LocationID,
+    sl.Address;
+
+select * from EventData;
+
+select * from Device;
+
+
 
 SELECT d.DeviceID, c.CustomerID, d.Type,
     SUM(ed.Value) AS TotalEnergyConsumption
@@ -1403,12 +1535,40 @@ select * from Device;
 
 
 
+SELECT table_name, COUNT(column_name) AS column_count
+FROM information_schema.columns
+where table_schema = 'project'
+GROUP BY table_name
+ORDER BY column_count DESC;
+
+
+SELECT MAX(COUNT) FROM
+(SELECT COUNT(*) as COUNT
+FROM information_schema.columns
+WHERE TABLE_SCHEMA = 'project'
+GROUP BY table_name) AS CNT;
+
+SELECT *
+from information_schema.tables
+where table_schema = 'project';
+
+
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'projeect'
+AND
+table_rows > (
+    SELECT COUNT(column_name)
+    FROM information_schema.columns
+    WHERE table_name = information_schema.tables.table_name
+);
 
 
 
 
-
-
+Select * 
+from information_schema.columns
+where table_schema = 'project';
 
 
 

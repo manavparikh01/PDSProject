@@ -64,7 +64,7 @@ const handleSignOut = () => {
         </div>
       </div>
       <div className="conedison">
-        <img src="conedison.png" alt="Con Edison Logo" height="60px" width="280px" />
+        <img src="conedison.png" alt="Con Edison" height="60px" width="280px" />
       </div>
       <div className="content">
         <h1>Welcome to Con Edison</h1>

@@ -48,6 +48,9 @@ const EnergyBarChart = () => {
     <div>
       <h1>Total Energy Usage Per Month</h1>
       <Chart options={chartOptions} series={chartSeries} type="bar" height={350} />
+      <Link to={`/location/${locationID}`}>
+      <button>Go Back</button>
+      </Link>
     </div>
   );
 };

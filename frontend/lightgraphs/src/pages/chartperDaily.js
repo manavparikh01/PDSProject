@@ -66,6 +66,9 @@ const DailyEnergyChart = () => {
     <div>
       <h1>Daily Energy Usage Chart</h1>
       <Chart options={chartOptions} series={chartData.series} type="bar" height={350} />
+      <Link to={`/location/${locationID}`}>
+      <button>Go Back</button>
+      </Link>
     </div>
   );
 };

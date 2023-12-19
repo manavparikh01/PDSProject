@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import './style.css';
 
 const DeviceForm = () => {
-  const { locationID } = useParams();
+  const { locationID, clearCustomer } = useParams();
   const [deviceData, setDeviceData] = useState({
     type: 'general',
     model: 'general',
@@ -53,6 +53,12 @@ const DeviceForm = () => {
     }
   };
 
+  const handleSignOut = () => {
+    // Clear customer data and redirect to the home page
+    clearCustomer();
+    history('/');
+  };
+
   return (
     <div>
       <div className="sidebar">
@@ -62,9 +68,12 @@ const DeviceForm = () => {
           <li><Link to={`/locations`}>Locations</Link></li>
           <li><Link to="/settings">Settings</Link></li>
         </ul>
+        <div className="sign-out">
+          <button onClick={handleSignOut}>Sign Out</button>
+        </div>
       </div>
       <div className="conedison">
-      <img src="conedison.png" alt="Con Edison Logo" height="60px" width="280px" />
+      <img src="conedison.png" alt="Con Edison" height="60px" width="280px" />
         <p>Your one-stop destination for a Smart Home Energy Management.</p>
       </div>
 
